@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrationssida för Policys</title>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <h1>Administrationssida för Policys</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash-message {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h2>Lägg till ny policy</h2>
+    <form method="POST">
+        <label for="klubb">Klubb:</label>
+        <input type="text" id="klubb" name="klubb" required>
+
+        <label for="policy_content">Policy innehåll (JSON-format):</label>
+        <textarea id="policy_content" name="policy_content" rows="10" required></textarea>
+
+        <input type="submit" value="Lägg till policy">
+    </form>
+
+    <h2>Befintliga policys</h2>
+    <table>
+        <tr>
+            <th>Klubb</th>
+            <th>Skapad</th>
+            <th>Åtgärder</th>
+        </tr>
+        {% for policy in policies %}
+        <tr>
+            <td>{{ policy.klubb }}</td>
+            <td>{{ policy.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+                <a href="{{ url_for('get_policies', klubb=policy.klubb) }}">Visa</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>

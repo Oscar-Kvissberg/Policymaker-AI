@@ -1,0 +1,24 @@
+entrypoint = "main.py"
+modules = ["nodejs-20", "python-3.11"]
+[nix]
+channel = "stable-24_05"
+
+[unitTest]
+language = "python3"
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix"]
+[deployment]
+run = "bash -c 'celery -A main.celery worker --loglevel=info & python main.py & wait'"
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+exposeLocalhost = true
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[objectStorage]
+defaultBucketID = "replit-objstore-487b22ad-e024-49bf-ba6c-2f309cdd70b5"

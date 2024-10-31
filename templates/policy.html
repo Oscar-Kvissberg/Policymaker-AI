@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ club }} Policy</title>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+</head>
+
+<body class="bg-white font-sans text-slate-800 min-h-screen">
+    <main class="max-w-4xl mx-auto px-6 py-12 md:py-16">
+        <!-- Title Section -->
+        <div class="mb-16">
+            <h1 class="text-4xl font-semibold text-slate-900 mb-4">{{ club }} Policy</h1>
+            <div class="h-1 w-16 bg-indigo-600"></div>
+        </div>
+
+        <!-- User Info Section -->
+        <section class="mb-16">
+            <div class="space-y-3">
+                <p class="text-lg"><span class="font-medium text-indigo-900">{{ messages.name }}:</span> <span
+                        class="text-slate-600">{{ name }}</span></p>
+                <p class="text-lg"><span class="font-medium text-indigo-900">{{ messages.position }}:</span> <span
+                        class="text-slate-600">{{ position }}</span></p>
+                <p class="text-lg"><span class="font-medium text-indigo-900">{{ messages.email }}:</span> <span
+                        class="text-slate-600">{{ email }}</span></p>
+            </div>
+        </section>
+
+        <!-- Policy Content -->
+        <section class="space-y-24">
+            {% for section_title, section_content in policy_sections %}
+            <div>
+                <h2 class="text-2xl font-semibold text-slate-900 mb-6">{{ section_title }}</h2>
+                <p class="text-lg text-slate-600 leading-relaxed mb-8">{{ section_content }}</p>
+                {% if loop.index == 1 %}
+                <div class="bg-slate-50 rounded-2xl p-8">
+                    <img src="{{ url_for('static', filename='bild_ett.png') }}" alt="Policy illustration"
+                        class="w-full object-cover rounded-xl">
+                </div>
+                {% elif loop.index == 3 %}
+                <div class="bg-slate-50 rounded-2xl p-8">
+                    <img src="{{ url_for('static', filename='bild_tva.jpg') }}" alt="Additional policy illustration"
+                        class="w-full object-cover rounded-xl">
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </section>
+
+        {% if questions %}
+        <!-- Quiz Section -->
+        <section class="mt-24 pt-16 border-t border-slate-200">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-12">{{ messages.questions }}</h2>
+
+            <form id="quiz-form" class="space-y-12">
+                {% for question in questions %}
+                <div class="bg-slate-50 rounded-2xl p-8">
+                    <p class="text-lg font-medium text-slate-800 mb-6">{{ question.text }}</p>
+                    <div class="space-y-4">
+                        <label
+                            class="flex items-center space-x-4 p-4 bg-white rounded-xl border-2 border-transparent hover:border-indigo-200 cursor-pointer transition-all">
+                            <input type="radio" name="q{{ loop.index }}" value="true" required
+                                class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-lg text-slate-700">{{ messages.true }}</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-4 p-4 bg-white rounded-xl border-2 border-transparent hover:border-indigo-200 cursor-pointer transition-all">
+                            <input type="radio" name="q{{ loop.index }}" value="false" required
+                                class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-lg text-slate-700">{{ messages.false }}</span>
+                        </label>
+                    </div>
+                    <p class="text-rose-500 mt-4 text-base hidden" id="error{{ loop.index }}">{{ messages.wrong_answer
+                        }}</p>
+                </div>
+                {% endfor %}
+
+                <button type="button" id="check-answers"
+                    class="px-6 py-3 bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 text-sky-600 rounded-2xl font-medium transition-all hover:from-sky-100 hover:via-blue-100 hover:to-indigo-100 border border-sky-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                    {{ messages.check_answers }}
+                </button>
+            </form>
+
+            <div id="congratulations-message" class="mt-8 text-emerald-600 font-medium text-lg text-center hidden">
+                {{ messages.congratulations }}
+            </div>
+
+            <form id="sign-form" action="{{ url_for('sign_policy') }}" method="post" class="mt-8 hidden">
+                <input type="hidden" name="name" value="{{ name }}">
+                <input type="hidden" name="club" value="{{ club }}">
+                <input type="hidden" name="position" value="{{ position }}">
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="language" value="{{ language }}">
+                <button type="submit" id="sign-policy"
+                    class="px-6 py-3 bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 text-white rounded-2xl font-medium transition-all hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                    {{ messages.sign_policy }}
+                </button>
+            </form>
+        </section>
+        {% endif %}
+    </main>
+</body>
+
+</html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var correctAnswers = JSON.parse('{{ questions | tojson | safe }}');
+        var checkAnswersButton = document.getElementById('check-answers');
+        var signForm = document.getElementById('sign-form');
+        var congratulationsMessage = document.getElementById('congratulations-message');
+
+        checkAnswersButton.addEventListener('click', function () {
+            var allCorrect = true;
+            correctAnswers.forEach(function (q, index) {
+                var answer = document.querySelector('input[name="q' + (index + 1) + '"]:checked');
+                var errorMessage = document.getElementById('error' + (index + 1));
+
+                if (answer && answer.value === q.correct_answer.toString()) {
+                    errorMessage.classList.add('hidden');
+                } else {
+                    errorMessage.classList.remove('hidden');
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                congratulationsMessage.classList.remove('hidden');
+                signForm.classList.remove('hidden');
+                checkAnswersButton.classList.add('opacity-50', 'cursor-not-allowed');
+                checkAnswersButton.disabled = true;
+            } else {
+                congratulationsMessage.classList.add('hidden');
+                signForm.classList.add('hidden');
+            }
+        });
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Inskickad</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Loopple/loopple-public-assets@main/motion-tailwind/motion-tailwind.css">
+</head>
+
+<body class="bg-white rounded-lg py-5 min-h-screen flex items-center justify-center">
+    <div class="container max-w-md mx-auto bg-white rounded-lg pt-12 my-5">
+        <div class="flex justify-center w-full h-full my-auto draggable">
+            <div class="w-full px-6">
+                <div class="flex flex-col items-center w-full h-full pb-6 text-center bg-white rounded-3xl">
+                    <h3 class="mb-3 text-4xl font-extrabold text-dark-grey-900">Kontot är nu skapat!</h3>
+                    <div class="w-1/2 mb-4">
+                        <p class="text-grey-700">Du kan nu logga in med ditt nya konto för att generera och redigera er
+                            policy, skicka mejl och påminnelsser samt se en översikt på vilka som har skickat in
+                            signaturer.</p>
+                    </div>
+
+                    <div class="w-1/2">
+                        <a href="{{ url_for('valj_klubb') }}"
+                            class="block w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500 text-center">
+                            Tillbaka till inloggnings sidan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ messages.title }}</title>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 font-sans text-gray-800 flex flex-col min-h-screen">
+    <div class="container mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+        <div class="bg-white shadow-md rounded-lg p-8 max-w-md w-full text-center">
+            <div class="mb-6">
+                <img src="{{ url_for('static', filename='Catalina_logo.png') }}" alt="Congratulations"
+                    class="mx-auto w-48 h-48 object-contain">
+            </div>
+            <h1 class="text-3xl font-bold mb-4 text-gray-800">{{ messages.title }}</h1>
+            <p class="text-xl text-purple-600 font-bold mb-6">{{ messages.thank_you }}</p>
+            <p class="mb-6"><strong>{{ messages.date }}:</strong> {{ (date|datetime).strftime('%Y-%m-%d') }}</p>
+            <a href="{{ url_for('download_pdf', name=name, club=club, position=position, date=(date|datetime).strftime('%Y-%m-%d'), language=language) }}"
+                class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300 inline-block">
+                {{ messages.download_pdf }}
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>

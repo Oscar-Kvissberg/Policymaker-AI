@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generera Policy</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Loopple/loopple-public-assets@main/motion-tailwind/motion-tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-white rounded-lg py-5 min-h-screen flex items-center justify-center">
+    <div class="container max-w-md mx-auto bg-white rounded-lg pt-12 my-5">
+        <div class="flex justify-center w-full h-full my-auto draggable">
+            <div class="w-full px-6">
+                <form action="{{ url_for('skicka_policy_info') }}" method="post"
+                    class="flex flex-col items-center w-full h-full pb-6 text-center bg-white rounded-3xl needs-validation"
+                    novalidate>
+                    <h3 class="mb-3 text-4xl font-extrabold text-dark-grey-900">Generera Policy</h3>
+                    <div class="w-1/2 mb-4">
+                        <p class="text-grey-700">Vänligen fyll i uppgifterna nedan</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div
+                        class="w-1/2 mb-4 p-4 rounded-md {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="w-1/2">
+                        <label for="klubb" class="mb-2 text-sm text-start text-grey-900 block">Klubb</label>
+                        <input type="text" id="klubb" name="klubb" required placeholder="Din klubb"
+                            class="flex items-center w-full px-5 py-4 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl">
+
+                        <label for="namn" class="mb-2 text-sm text-start text-grey-900 block">För- & efternamn</label>
+                        <input type="text" id="namn" name="namn" required placeholder="Ditt namn"
+                            class="flex items-center w-full px-5 py-4 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl">
+
+                        <label for="username" class="mb-2 text-sm text-start text-grey-900 block">Användarnamn</label>
+                        <input type="text" id="username" name="username" required placeholder="Ditt användarnamn"
+                            class="flex items-center w-full px-5 py-4 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl">
+
+                        <label for="email" class="mb-2 text-sm text-start text-grey-900 block">E-postadress</label>
+                        <input type="email" id="email" name="email" required placeholder="exempel@mail.com"
+                            class="flex items-center w-full px-5 py-4 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl">
+
+                        <label for="losenord" class="mb-2 text-sm text-start text-grey-900 block">Lösenord</label>
+                        <input type="password" id="losenord" name="losenord" required placeholder="••••••••"
+                            class="flex items-center w-full px-5 py-4 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl">
+
+                        <button type="submit"
+                            class="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500">
+                            Skapa konto
+                        </button>
+                    </div>
+
+                    <p class="text-sm leading-relaxed text-grey-900">
+                        <a href="{{ url_for('valj_klubb') }}" class="text-sm font-medium text-purple-blue-500">
+                            Tillbaka till klubböversikt
+                        </a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        (function () {
+            'use strict'
+
+            const forms = document.querySelectorAll('.needs-validation')
+
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    event.preventDefault()
+                    event.stopPropagation()
+
+                    if (form.checkValidity()) {
+                        Swal.fire({
+                            title: 'Är du säker?',
+                            text: "Vill du skicka denna förfrågan?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ja, skicka!',
+                            cancelButtonText: 'Nej, avbryt'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit()
+                            }
+                        })
+                    } else {
+                        form.classList.add('was-validated')
+                    }
+                }, false)
+            })
+        })()
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Klubböversikt</title>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-800">
+    <nav class="border-b border-slate-200 bg-white">
+        <ul class="flex justify-start p-4">
+            <li class="mr-4">
+                <a href="#"
+                    class="nav-link active rounded-lg px-4 py-2 text-slate-600 transition-colors hover:bg-slate-100"
+                    data-target="policy-status">Översikt och Utskick</a>
+            </li>
+            <li class="mr-4">
+                <a href="#" class="nav-link rounded-lg px-4 py-2 text-slate-600 transition-colors hover:bg-slate-100"
+                    data-target="policy-fragor">Policy och frågor</a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}"
+                    class="rounded-lg px-4 py-2 text-slate-600 transition-colors hover:bg-slate-100">Logga ut</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container mx-auto max-w-6xl px-4 py-8">
+        <h1 class="mb-12 text-center text-3xl font-medium">
+            Klubböversikt för {{ klubb|replace('_', ' ') }}
+        </h1>
+
+        <div id="policy-status" class="content-section active space-y-8">
+            <div class="rounded-lg bg-white p-6 shadow-sm">
+                <h2 class="mb-6 text-2xl font-medium">Skicka policy</h2>
+                <div class="mb-6 flex flex-wrap gap-4">
+                    <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" />
+                    <button id="upload-excel-btn"
+                        class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                        Lägg till Excel-fil
+                    </button>
+                    <button id="add-row-btn"
+                        class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                        Lägg till rad
+                    </button>
+                    <button id="remove-all-btn"
+                        class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                        Ta bort alla
+                    </button>
+                    <button id="send-email-btn"
+                        class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                        Skicka
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="email-input-table" class="w-full">
+                        <thead>
+                            <tr class="border-b border-slate-200">
+                                <th class="py-3 text-left font-medium">
+                                    Namn
+                                </th>
+                                <th class="py-3 text-left font-medium">
+                                    E-postadress
+                                </th>
+                                <th class="py-3 text-left font-medium"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="text" class="name-input w-full rounded-lg border-slate-200 px-3 py-2"
+                                        placeholder="Namn" />
+                                </td>
+                                <td>
+                                    <input type="email" class="email-input w-full rounded-lg border-slate-200 px-3 py-2"
+                                        placeholder="E-postadress" />
+                                </td>
+                                <td>
+                                    <button
+                                        class="remove-row-btn rounded-lg bg-slate-900 px-3 py-2 text-white transition-colors hover:bg-slate-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- ./Client Table , <span class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-700"> Denied </span>    för att visa att den är passerad-->
+            <div class="rounded-lg bg-white p-6 shadow-sm">
+                <h2 class="mb-6 text-2xl font-medium">Status</h2>
+                <div class="mb-6 flex gap-4">
+                    <button
+                        class="tablinks active rounded-lg border-2 border-slate-900 bg-slate-900 px-4 py-2 text-white shadow-lg transition-all hover:bg-slate-800"
+                        onclick="openTab(event, 'skickade-paminda')">
+                        Skickade och påminda
+                    </button>
+                    <button
+                        class="tablinks rounded-lg border-2 border-slate-300 bg-white px-4 py-2 text-slate-600 transition-all hover:bg-slate-50"
+                        onclick="openTab(event, 'signerade')">
+                        Signerade
+                    </button>
+                </div>
+
+                <div id="skickade-paminda" class="tabcontent block">
+                    <h3 class="mb-4 text-xl font-medium">
+                        Skickade och påminda
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table id="sent-emails-table" class="w-full">
+                            <thead>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 text-left font-medium">
+                                        Namn
+                                    </th>
+                                    <th class="py-3 text-left font-medium">
+                                        E-postadress
+                                    </th>
+                                    <th class="py-3 text-left font-medium">
+                                        Datum
+                                    </th>
+                                    <th class="py-3 text-left font-medium">
+                                        Status
+                                    </th>
+                                    <th class="py-3 text-left font-medium"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in all_data %} {% if item.status
+                                != 'Signerad' %}
+                                <tr class="border-b border-slate-100" data-id="{{ item.internal_id }}">
+                                    <td class="py-3">{{ item.name }}</td>
+                                    <td class="py-3">{{ item.email }}</td>
+                                    <td class="py-3">
+                                        {{ item.date | datetime if item.date
+                                        else 'Datum saknas' }}
+                                    </td>
+                                    <td class="py-3">
+                                        {% if item.status == 'Påmind' %}
+                                        <span
+                                            class="px-2 py-1 font-semibold leading-tight text-yellow-700 bg-yellow-100 rounded-full">
+                                            Påmind
+                                        </span>
+                                        {% else %}
+                                        <span
+                                            class="px-2 py-1 font-semibold leading-tight text-gray-700 bg-gray-100 rounded-full">
+                                            Skickad
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3">
+                                        {% if item.internal_id %}
+                                        <button onclick="removeRow('{{ item.internal_id }}')"
+                                            class="rounded-lg bg-slate-900 px-3 py-2 text-white transition-colors hover:bg-slate-800">
+                                            Ta bort
+                                        </button>
+                                        {% else %}
+                                        <span class="text-slate-500">Kan inte ta bort</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %} {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- ./Client Table -->
+
+
+                <div id="signerade" class="tabcontent hidden">
+                    <h3 class="mb-4 text-xl font-medium">Signerade</h3>
+                    <div class="overflow-x-auto">
+                        <table id="signed-emails-table" class="w-full">
+                            <thead>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-3 text-left font-medium">
+                                        Namn
+                                    </th>
+                                    <th class="py-3 text-left font-medium">
+                                        E-postadress
+                                    </th>
+                                    <th class="py-3 text-left font-medium">
+                                        Datum
+                                    </th>
+                                    <th class="py-3 text-left font-medium">
+                                        Status
+                                    </th>
+                                    <th class="py-3 text-left font-medium"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in all_data %} {% if item.status
+                                == 'Signerad' %}
+                                <tr class="border-b border-slate-100" data-id="{{ item.internal_id }}">
+                                    <td class="py-3">{{ item.name }}</td>
+                                    <td class="py-3">{{ item.email }}</td>
+                                    <td class="py-3">
+                                        {{ item.date | datetime if item.date
+                                        else 'Datum saknas' }}
+                                    </td>
+                                    <td class="py-3">
+                                        <span
+                                            class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                                            Signerad
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                        {% if item.internal_id %}
+                                        <button onclick="removeRow('{{ item.internal_id }}', true)"
+                                            class="rounded-lg bg-slate-900 px-3 py-2 text-white transition-colors hover:bg-slate-800">
+                                            Ta bort
+                                        </button>
+                                        {% else %}
+                                        <span class="text-slate-500">Kan inte ta bort</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %} {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="policy-fragor" class="content-section hidden">
+            <div class="rounded-lg bg-white p-6 shadow-sm">
+                <h2 class="mb-6 text-2xl font-medium">Policy och frågor</h2>
+                <div id="policy-content">
+                    {% if policy_data %}
+                    <div id="policy-view">
+                        <div class="policy-content mb-8 space-y-6">
+                            {% for i in range(policy_data.title|length) %}
+                            <div>
+                                <h3 class="mb-2 text-xl font-medium">
+                                    {{ policy_data.title[i] }}
+                                </h3>
+                                <p class="text-slate-600">
+                                    {{ policy_data.content[i] }}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="policy-questions mb-8">
+                            <h3 class="mb-4 text-xl font-medium">Frågor</h3>
+                            <ol class="space-y-4">
+                                {% for question in policy_data.questions %}
+                                <li>
+                                    <div class="rounded-lg bg-slate-50 p-4">
+                                        <p class="mb-2 font-medium">
+                                            {{ question.text }}
+                                        </p>
+                                        <p>
+                                            Korrekt svar:
+                                            <span
+                                                class="{% if question.correct_answer %}text-emerald-600{% else %}text-rose-600{% endif %} font-medium">{{
+                                                'Sant' if
+                                                question.correct_answer else
+                                                'Falskt' }}</span>
+                                        </p>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                        <button onclick="showEditForm()"
+                            class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                            Redigera policy
+                        </button>
+                    </div>
+
+                    <div id="policy-edit" class="hidden">
+                        <form id="edit-policy-form" class="space-y-6">
+                            <div id="policy-sections" class="space-y-6">
+                                {% for i in range(policy_data.title|length)
+                                %}
+                                <div class="policy-section space-y-3">
+                                    <h3 class="text-lg font-medium">
+                                        Sektion {{ i+1 }}
+                                    </h3>
+                                    <input type="text" name="title_{{ i }}" value="{{ policy_data.title[i] }}" required
+                                        class="w-full rounded-lg border-slate-200 px-3 py-2" />
+                                    <textarea name="content_{{ i }}" required
+                                        class="w-full rounded-lg border-slate-200 px-3 py-2">
+{{ policy_data.content[i] }}</textarea>
+                                    <button type="button"
+                                        class="remove-section-btn rounded-lg bg-slate-900 px-3 py-2 text-white transition-colors hover:bg-slate-800">
+                                        Ta bort sektion
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" id="add-section-btn"
+                                class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                                Lägg till sektion
+                            </button>
+
+                            <div>
+                                <h3 class="mb-4 text-xl font-medium">
+                                    Frågor
+                                </h3>
+                                <div id="policy-questions" class="space-y-4">
+                                    {% for question in policy_data.questions
+                                    %}
+                                    <div class="question-edit-container rounded-lg bg-slate-50 p-4 space-y-3">
+                                        <input type="text" name="question_{{ loop.index0 }}" value="{{ question.text }}"
+                                            required class="w-full rounded-lg border-slate-200 px-3 py-2" />
+                                        <div class="flex items-center gap-3">
+                                            <label>Korrekt svar:</label>
+                                            <select name="answer_{{ loop.index0 }}"
+                                                class="rounded-lg border-slate-200 px-3 py-2">
+                                                <option value="true" {% if question.correct_answer %}selected{% endif
+                                                    %}>
+                                                    Sant
+                                                </option>
+                                                <option value="false" {% if not question.correct_answer %}selected{%
+                                                    endif %}>
+                                                    Falskt
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <button type="button"
+                                            class="remove-question-btn rounded-lg bg-slate-900 px-3 py-2 text-white transition-colors hover:bg-slate-800">
+                                            Ta bort fråga
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <button type="button" id="add-question-btn"
+                                class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                                Lägg till fråga
+                            </button>
+
+                            <div class="flex justify-end gap-4">
+                                <button type="button" onclick="savePolicy()"
+                                    class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                                    Spara ändringar
+                                </button>
+                                <button type="button" onclick="cancelEdit()"
+                                    class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                                    Avbryt
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="column-select-modal"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+                <h3 class="text-xl font-medium mb-4">Välj kolumner</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2">Namnkolumn:</label>
+                        <select id="name-column-select" class="w-full rounded-lg border-slate-200 px-3 py-2"></select>
+                    </div>
+                    <div>
+                        <label class="block mb-2">E-postkolumn:</label>
+                        <select id="email-column-select" class="w-full rounded-lg border-slate-200 px-3 py-2"></select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-4 mt-6">
+                    <button id="cancel-columns-btn"
+                        class="rounded-lg bg-slate-200 px-4 py-2 text-slate-800 transition-colors hover:bg-slate-300">
+                        Avbryt
+                    </button>
+                    <button id="confirm-columns-btn"
+                        class="rounded-lg bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800">
+                        Bekräfta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                // Lägg till rad
+                $("#add-row-btn").click(function () {
+                    addRowToTable("", "");
+                });
+
+                // Skicka
+                $("#send-email-btn").click(function () {
+                    var recipients = [];
+                    $("#email-input-table tbody tr").each(function () {
+                        var name = $(this).find(".name-input").val().trim();
+                        var email = $(this)
+                            .find(".email-input")
+                            .val()
+                            .trim();
+                        if (name && email) {
+                            recipients.push({ name: name, email: email });
+                        }
+                    });
+
+                    $.ajax({
+                        url: "/skicka_email",
+                        method: "POST",
+                        data: JSON.stringify({
+                            recipients: recipients,
+                            klubb: "{{ klubb }}",
+                        }),
+                        contentType: "application/json",
+                        success: function (response) {
+                            alert("E-post har skickats!");
+                            location.reload();
+                        },
+                        error: function () {
+                            alert(
+                                "Ett fel uppstod vid sändning av e-post.",
+                            );
+                        },
+                    });
+                });
+
+                // Lägg till Excel-fil
+                $("#upload-excel-btn").click(function () {
+                    $("#excel-file").click();
+                });
+
+                $("#excel-file").change(function (e) {
+                    if (e.target.files.length > 0) {
+                        var file = e.target.files[0];
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            var data = new Uint8Array(e.target.result);
+                            var workbook = XLSX.read(data, {
+                                type: "array",
+                            });
+
+                            var firstSheetName = workbook.SheetNames[0];
+                            var worksheet = workbook.Sheets[firstSheetName];
+                            var jsonData = XLSX.utils.sheet_to_json(
+                                worksheet,
+                                { header: 1 },
+                            );
+
+                            showColumnSelectModal(jsonData[0]);
+                        };
+
+                        reader.readAsArrayBuffer(file);
+                    }
+                });
+
+                function showColumnSelectModal(headers) {
+                    var modal = document.getElementById(
+                        "column-select-modal",
+                    );
+                    var nameSelect =
+                        document.getElementById("name-column-select");
+                    var emailSelect = document.getElementById(
+                        "email-column-select",
+                    );
+
+                    nameSelect.innerHTML = "";
+                    emailSelect.innerHTML = "";
+
+                    headers.forEach(function (header, index) {
+                        var option = document.createElement("option");
+                        option.value = index;
+                        option.textContent = header;
+                        nameSelect.appendChild(option.cloneNode(true));
+                        emailSelect.appendChild(option);
+                    });
+
+                    modal.classList.remove("hidden");
+                }
+
+                $("#confirm-columns-btn").click(function () {
+                    var nameColumnIndex = parseInt(
+                        $("#name-column-select").val(),
+                    );
+                    var emailColumnIndex = parseInt(
+                        $("#email-column-select").val(),
+                    );
+
+                    fillTableWithExcelData(
+                        nameColumnIndex,
+                        emailColumnIndex,
+                    );
+                    $("#column-select-modal").addClass("hidden");
+                });
+
+                $("#cancel-columns-btn").click(function () {
+                    $("#column-select-modal").addClass("hidden");
+                });
+
+                function fillTableWithExcelData(
+                    nameColumnIndex,
+                    emailColumnIndex,
+                ) {
+                    var file =
+                        document.getElementById("excel-file").files[0];
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        var data = new Uint8Array(e.target.result);
+                        var workbook = XLSX.read(data, { type: "array" });
+
+                        var firstSheetName = workbook.SheetNames[0];
+                        var worksheet = workbook.Sheets[firstSheetName];
+                        var jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                            header: 1,
+                        });
+
+                        // Gå igenom data baklänges för att lägga till överst i tabellen
+                        for (var i = jsonData.length - 1; i > 0; i--) {
+                            var row = jsonData[i];
+                            var name = row[nameColumnIndex];
+                            var email = row[emailColumnIndex];
+
+                            if (name && email) {
+                                addRowToTable(name, email);
+                            }
+                        }
+
+                        document.getElementById("excel-file").value = "";
+                    };
+
+                    reader.readAsArrayBuffer(file);
+                }
+
+                // Lägg till denna nya funktion för "Ta bort alla" knappen
+                $("#remove-all-btn").click(function () {
+                    if (
+                        confirm(
+                            "Är du säker på att du vill ta bort alla rader?",
+                        )
+                    ) {
+                        var table = $("#email-input-table tbody");
+                        table.html(""); // Ta bort alla rader
+                        // Lägg till en tom rad
+                        table.append(`
+                        <tr>
+                            <td><input type="text" class="name-input w-full px-2 py-1 border rounded" placeholder="Namn"></td>
+                            <td><input type="email" class="email-input w-full px-2 py-1 border rounded" placeholder="E-postadress"></td>
+                            <td>
+                                <button class="remove-row-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                    }
+                });
+
+                // Hantera borttagning av enskilda rader
+                $("#email-input-table").on(
+                    "click",
+                    ".remove-row-btn",
+                    function () {
+                        $(this).closest("tr").remove();
+                    },
+                );
+            });
+
+            // Lägg till din befintliga JavaScript-kod här
+
+            // Lägg till denna nya kod för att hantera flikväxling
+            document.addEventListener("DOMContentLoaded", function () {
+                var navLinks = document.querySelectorAll(".nav-link");
+                var contentSections =
+                    document.querySelectorAll(".content-section");
+
+                navLinks.forEach(function (link) {
+                    link.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        var targetId = this.getAttribute("data-target");
+
+                        // Dölj alla innehållssektioner och avaktivera alla nav-länkar
+                        contentSections.forEach(function (section) {
+                            section.classList.add("hidden");
+                        });
+                        navLinks.forEach(function (navLink) {
+                            navLink.classList.remove("active");
+                        });
+
+                        // Visa målsektionen och aktivera den klickade nav-länken
+                        document
+                            .getElementById(targetId)
+                            .classList.remove("hidden");
+                        this.classList.add("active");
+                    });
+                });
+            });
+
+            function openTab(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(
+                        " active",
+                        "",
+                    );
+                    tablinks[i].classList.remove(
+                        "bg-slate-900",
+                        "border-slate-900",
+                        "text-white",
+                        "shadow-lg",
+                    );
+                    tablinks[i].classList.add(
+                        "bg-white",
+                        "border-slate-300",
+                        "text-slate-600",
+                    );
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+                evt.currentTarget.classList.remove(
+                    "bg-white",
+                    "border-slate-300",
+                    "text-slate-600",
+                );
+                evt.currentTarget.classList.add(
+                    "bg-slate-900",
+                    "border-slate-900",
+                    "text-white",
+                    "shadow-lg",
+                );
+            }
+
+            function togglePolicy() {
+                var policyContent =
+                    document.getElementById("policy-content");
+                var arrowDown = document.querySelector(".arrow-down");
+                if (policyContent.classList.contains("hidden")) {
+                    policyContent.classList.remove("hidden");
+                    arrowDown.style.transform = "rotate(180deg)";
+                } else {
+                    policyContent.classList.add("hidden");
+                    arrowDown.style.transform = "rotate(0deg)";
+                }
+            }
+
+            function showEditForm() {
+                document.getElementById("policy-view").style.display =
+                    "none";
+                document.getElementById("policy-edit").style.display =
+                    "block";
+            }
+
+            function cancelEdit() {
+                document.getElementById("policy-edit").style.display =
+                    "none";
+                document.getElementById("policy-view").style.display =
+                    "block";
+            }
+
+            function savePolicy() {
+                var form = document.getElementById("edit-policy-form");
+                var formData = new FormData(form);
+                var jsonData = {
+                    klubb: "{{ klubb }}",
+                    title: [],
+                    content: [],
+                    questions: [],
+                };
+
+                for (let [key, value] of formData.entries()) {
+                    if (key.startsWith("title_")) {
+                        jsonData.title.push(value);
+                    } else if (key.startsWith("content_")) {
+                        jsonData.content.push(value);
+                    } else if (key.startsWith("question_")) {
+                        let index = key.split("_")[1];
+                        let answer = formData.get(`answer_${index}`);
+                        jsonData.questions.push({
+                            text: value,
+                            correct_answer: answer === "true",
+                        });
+                    }
+                }
+
+                fetch("/redigera_policy/{{ klubb }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(jsonData),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.success) {
+                            alert("Policyn har uppdaterats");
+                            updatePolicyView(jsonData); // Uppdatera vyn istället för att ladda om sidan
+                            cancelEdit(); // Gå tillbaka till visningsläget
+                        } else {
+                            alert(
+                                "Ett fel uppstod vid uppdatering av policyn: " +
+                                data.message,
+                            );
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        alert(
+                            "Ett fel uppstod vid uppdatering av policyn: " +
+                            error,
+                        );
+                    });
+            }
+
+            function updatePolicyView(policyData) {
+                var policyContent =
+                    document.querySelector(".policy-content");
+                var policyQuestions =
+                    document.querySelector(".policy-questions");
+
+                // Uppdatera policy-innehållet
+                policyContent.innerHTML = policyData.title
+                    .map(
+                        (title, index) => `
+                <h3 class="text-xl font-bold mt-4 mb-2">${title}</h3>
+                <p class="mb-2">${policyData.content[index]}</p>
+            `,
+                    )
+                    .join("");
+
+                // Uppdatera frågorna
+                var questionsHtml = policyData.questions
+                    .map(
+                        (question, index) => `
+                <li class="mb-4">
+                    <div class="bg-gray-100 p-4 rounded">
+                        <p class="font-bold mb-2">${question.text}</p>
+                        <p>
+                            Korrekt svar: <span class="${question.correct_answer ? "text-green-600" : "text-red-600"} font-bold">
+                                ${question.correct_answer ? "Sant" : "Falskt"}
+                            </span>
+                        </p>
+                    </div>
+                </li>
+            `,
+                    )
+                    .join("");
+                policyQuestions.querySelector("ol").innerHTML =
+                    questionsHtml;
+            }
+
+            document
+                .getElementById("add-section-btn")
+                .addEventListener("click", function () {
+                    var sectionsContainer =
+                        document.getElementById("policy-sections");
+                    var newSectionIndex = sectionsContainer.children.length;
+                    var newSection = document.createElement("div");
+                    newSection.className = "policy-section mb-4";
+                    newSection.innerHTML = `
+                <h3 class="text-lg font-bold mb-2">Sektion ${newSectionIndex + 1}</h3>
+                <input type="text" name="title_${newSectionIndex}" required class="w-full px-2 py-1 border rounded mb-2">
+                <textarea name="content_${newSectionIndex}" required class="w-full px-2 py-1 border rounded mb-2"></textarea>
+                <button type="button" class="remove-section-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Ta bort sektion</button>
+            `;
+                    sectionsContainer.appendChild(newSection);
+                });
+
+            document
+                .getElementById("policy-sections")
+                .addEventListener("click", function (e) {
+                    if (e.target.classList.contains("remove-section-btn")) {
+                        e.target.closest(".policy-section").remove();
+                        updateSectionNumbers();
+                    }
+                });
+
+            document
+                .getElementById("add-question-btn")
+                .addEventListener("click", function () {
+                    var questionsContainer =
+                        document.getElementById("policy-questions");
+                    var newQuestionIndex =
+                        questionsContainer.children.length;
+                    var newQuestion = document.createElement("div");
+                    newQuestion.className =
+                        "question-edit-container bg-gray-100 p-4 rounded mb-4";
+                    newQuestion.innerHTML = `
+                <input type="text" name="question_${newQuestionIndex}" required class="w-full px-2 py-1 border rounded mb-2">
+                <div class="flex items-center mb-2">
+                    <label class="mr-2">Korrekt svar:</label>
+                    <select name="answer_${newQuestionIndex}" class="px-2 py-1 border rounded">
+                        <option value="true">Sant</option>
+                        <option value="false">Falskt</option>
+                    </select>
+                </div>
+                <button type="button" class="remove-question-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Ta bort fråga</button>
+            `;
+                    questionsContainer.appendChild(newQuestion);
+                });
+
+            document
+                .getElementById("policy-questions")
+                .addEventListener("click", function (e) {
+                    if (
+                        e.target.classList.contains("remove-question-btn")
+                    ) {
+                        e.target
+                            .closest(".question-edit-container")
+                            .remove();
+                    }
+                });
+
+            function updateSectionNumbers() {
+                var sections = document.querySelectorAll(
+                    "#policy-sections .policy-section",
+                );
+                sections.forEach((section, index) => {
+                    section.querySelector("h3").textContent =
+                        `Sektion ${index + 1}`;
+                    section.querySelector('input[type="text"]').name =
+                        `title_${index}`;
+                    section.querySelector("textarea").name =
+                        `content_${index}`;
+                });
+            }
+
+            function removeRow(internalId, isSignature = false) {
+                if (!internalId || internalId === "None") {
+                    console.error("Inget giltigt internal_id tillgängligt");
+                    alert("Kunde inte ta bort posten: Inget giltigt ID");
+                    return;
+                }
+
+                if (
+                    confirm(
+                        "Är du säker på att du vill ta bort denna post?",
+                    )
+                ) {
+                    fetch("/remove_row", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            internal_id: internalId,
+                            is_signature: isSignature,
+                        }),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.success) {
+                                const row = document.querySelector(
+                                    `tr[data-id="${internalId}"]`,
+                                );
+                                if (row) {
+                                    row.remove();
+                                } else {
+                                    console.error(
+                                        "Kunde inte hitta raden att ta bort",
+                                    );
+                                }
+                            } else {
+                                alert(
+                                    "Ett fel uppstod vid borttagning av posten: " +
+                                    (data.error || "Okänt fel"),
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                            alert(
+                                "Ett fel uppstod vid borttagning av posten: " +
+                                error,
+                            );
+                        });
+                }
+            }
+
+            function addRowToTable(name, email) {
+                var table = document
+                    .getElementById("email-input-table")
+                    .getElementsByTagName("tbody")[0];
+                var newRow = table.insertRow(0); // Ändra här för att infoga raden överst
+                newRow.innerHTML = `
+                <td><input type="text" class="name-input w-full px-2 py-1 border rounded" value="${name}"></td>
+                <td><input type="email" class="email-input w-full px-2 py-1 border rounded" value="${email}"></td>
+                <td>
+                    <button class="remove-row-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </td>
+            `;
+            }
+        </script>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+{
+    "title": [
+        "Introduktion",
+        "Föreningen vision och värderingar",
+        "Ledarens roll och ansvar",
+        "Träning och match",
+        "Kommunikation och samarbete",
+        "Fotbollens spela, lek och lär",
+        "Sammanfattning"
+    ],
+    "content": [
+        "Manchester United är en klubb med en lång och framgångsrik historia, och detta speglas i hur föreningen arbetar med sina ungdomsspelare. Som ungdomsledare är det viktigt att bära klubbens arv och värderingar i åtanke, samtidigt som man fokuserar på att utveckla både tekniska och mentala färdigheter hos spelarna. Ledarskapet i Manchester United handlar om att skapa en positiv miljö där spelare kan växa och bli framgångsrika, både på och utanför planen.",
+        "Manchester Uniteds vision är att utveckla spelare som inte bara har teknisk skicklighet, utan även mental styrka och rätt inställning till fotbollens värderingar. Klubben värnar om sin kultur och historia, och detta genomsyrar hela verksamheten. Respekt, självdisciplin och samarbete är centrala begrepp som lyfts fram i allt arbete med ungdomsspelare. Målet är att varje spelare ska förstå vikten av att vara en del av ett lag, samtidigt som de får utrymme att växa individuellt.",
+        "Som ledare i Manchester United har du ett stort ansvar att agera som en förebild för spelarna. Det innebär att du visar respekt för alla på och utanför planen, och att du hjälper spelarna att utvecklas utan att sätta överdriven press på dem. Ungdomstränare ska uppmuntra självdisciplin och ge spelarna frihet att experimentera och lära sig av sina misstag. Genom att skapa en trygg och stöttande miljö bidrar du till att spelarna kan utvecklas både som individer och som fotbollsspelare.",
+        "Träningar och matcher i Manchester United fokuserar på att förbättra spelarnas tekniska färdigheter och mentala styrka. Ledarna förväntas planera träningar som är utmanande, men också roliga och engagerande. Det är viktigt att spelarna känner sig trygga att uttrycka sin kreativitet på planen och att de lär sig att arbeta tillsammans som ett lag. Under matcher uppmuntras ledarna att fokusera på spelarnas prestationer snarare än på resultatet, för att främja en långsiktig utveckling.",
+        "Kommunikationen mellan ledare, spelare och föräldrar är en viktig del av Manchester Uniteds filosofi. Som ledare ska du vara tydlig i din kommunikation och se till att alla inblandade förstår sina roller och ansvar. Ett öppet och respektfullt samarbete mellan alla parter är avgörande för att skapa en positiv miljö där spelarna kan utvecklas. Föräldrar förväntas stödja både sina barn och ledarna genom att bidra till en positiv och stöttande stämning.",
+        "I enlighet med fotbollens 'spela, lek och lär'-filosofi uppmuntrar Manchester United sina spelare att njuta av spelet och att utvecklas i sin egen takt. Ledare ska fokusera på att skapa en rolig och lärorik miljö, där spelarna får möjlighet att utveckla sina tekniska och mentala färdigheter utan att känna press på att alltid prestera. Det är viktigt att varje träning och match ses som en möjlighet för lärande, och att alla spelare får chansen att delta och bidra till laget.",
+        "Sammanfattningsvis innebär ledarskap i Manchester United att man fokuserar på både teknisk och mental utveckling, samtidigt som man bevarar klubbens värderingar. Som tränare ska du skapa en trygg och stöttande miljö där spelarna kan växa utan att känna överdriven press. Genom att vara en stark förebild och samarbeta med både spelare och föräldrar kan du bidra till en positiv och lärorik fotbollsupplevelse."
+    ],
+    "questions": [
+        {
+            "text": "Är självdisciplin och respekt viktiga värderingar i Manchester Uniteds filosofi?",
+            "correct_answer": true
+        },
+        {
+            "text": "Ska tränare i Manchester United sätta fokus på vinst framför spelarnas utveckling?",
+            "correct_answer": false
+        },
+        {
+            "text": "Är det viktigt att ungdomstränare i Manchester United följer principen 'spela, lek och lär' för att skapa en rolig och utvecklande miljö?",
+            "correct_answer": true
+        }
+    ]
+}
