@@ -58,7 +58,7 @@ from contextlib import contextmanager
 import socket
 from secrets import token_urlsafe
 
-# Konfigurera loggning
+# Konfigurera loggninga
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
